@@ -1,0 +1,5 @@
+feedparser
+readability-lxml
+beautifulsoup4
+lxml
+python-dateutil

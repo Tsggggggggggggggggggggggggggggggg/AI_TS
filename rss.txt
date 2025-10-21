@@ -1,0 +1,16 @@
+# 你可以在这里添加/删除 RSS 源；每行一个
+# —— 中文 AI/科技媒体 ——
+https://36kr.com/information/web_news/ai/rss
+https://www.leiphone.com/site/feed
+https://www.jiqizhixin.com/rss
+https://www.zhidx.com/feed
+https://www.infoq.cn/publications/rss
+
+# —— 英文 AI/科技媒体 ——
+https://techcrunch.com/tag/ai/feed/
+https://www.technologyreview.com/feed/
+https://venturebeat.com/category/ai/feed/
+https://www.wired.com/feed/tag/ai/latest/rss
+
+# —— 大厂官方博客（如果没有 RSS，可由 RSSHub 代替；此处示例为通用科技 RSS）
+# OpenAI Blog 目前无官方 RSS，可用三方/自建；可删除或替换为你自己的源
