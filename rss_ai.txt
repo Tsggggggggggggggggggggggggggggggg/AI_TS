@@ -1,0 +1,8 @@
+https://www.technologyreview.com/feed/
+https://techcrunch.com/tag/ai/feed/
+https://venturebeat.com/category/ai/feed/
+https://www.theverge.com/rss/index.xml
+https://spectrum.ieee.org/rss/fulltext
+https://syncedreview.com/feed/
+https://arxiv.org/rss/cs.AI
+https://www.bloomberg.com/feed/podcast/ai-pulse.xml

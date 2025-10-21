@@ -1,0 +1,44 @@
+name: AI Weekly Digest (Multi-Theme)
+
+on:
+  schedule:
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+    inputs:
+      theme:
+        description: 'Theme to run (ai / business / psych / design / all)'
+        required: false
+        default: 'all'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        theme: ${{ fromJSON(github.event.inputs.theme == 'all' && '["ai","business","psych","design"]' || format('["{0}"]', github.event.inputs.theme)) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run script for ${{ matrix.theme }}
+        env:
+          THEME: ${{ matrix.theme }}
+        run: |
+          python fetch_and_summarize.py
+
+      - name: Upload artifact (${{ matrix.theme }})
+        uses: actions/upload-artifact@v4
+        with:
+          name: weekly_digest_${{ matrix.theme }}
+          path: output/weekly_digest_${{ matrix.theme }}.md

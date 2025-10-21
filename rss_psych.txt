@@ -1,0 +1,7 @@
+https://psychcentral.com/blog/feed/
+https://www.psychologytoday.com/us/front/feed
+https://www.npr.org/sections/health/rss.xml
+https://greatergood.berkeley.edu/rss/all
+https://www.ted.com/themes/rss
+https://lifehacker.com/rss
+https://theconversation.com/psychology/articles.atom
