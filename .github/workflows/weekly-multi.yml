@@ -12,6 +12,87 @@ on:
 
 jobs:
   build:
+    merge:
+    name: Merge all themes to a single bilingual report
+    runs-on: ubuntu-latest
+    needs: build     # 等四个主题的矩阵任务都跑完
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: merged_inputs
+          pattern: weekly_digest_*          # 下载所有主题的打包产物
+          merge-multiple: true              # 放到同一目录，方便遍历
+
+      - name: Merge to one bilingual report
+        run: |
+          python - << 'PY'
+import os, re, glob, datetime
+from datetime import timezone, timedelta
+
+os.makedirs("output", exist_ok=True)
+
+# 主题输出顺序（你可自行调整）
+ORDER = ["ai", "business", "psych", "design"]
+
+# 在下载目录中找 *_bilingual.md；找不到则退回 *_zh.md
+def pick_file(theme):
+    # 优先双语
+    cand = glob.glob(f"merged_inputs/**/weekly_digest_{theme}_bilingual.md", recursive=True)
+    if cand: 
+        return sorted(cand)[-1]
+    # 其次中文
+    cand = glob.glob(f"merged_inputs/**/weekly_digest_{theme}_zh.md", recursive=True)
+    if cand: 
+        return sorted(cand)[-1]
+    # 再次英文
+    cand = glob.glob(f"merged_inputs/**/weekly_digest_{theme}_en.md", recursive=True)
+    if cand: 
+        return sorted(cand)[-1]
+    return None
+
+parts = []
+# 标题带日期范围（以今天为结束，向前7天）
+end = datetime.datetime.now(timezone.utc)
+start = end - datetime.timedelta(days=7)
+def fmt(dt):
+    # UTC+8 输出
+    bj = dt.astimezone(datetime.timezone(datetime.timedelta(hours=8)))
+    return bj.strftime("%Y-%m-%d %H:%M")
+header = f"# 多主题一周总览 · {fmt(start)} ~ {fmt(end)}\n\n> 含 AI / 商业 / 心理 / 设计 · 每条 1 句摘要 + 1 句洞察（中英双语）\n"
+parts.append(header)
+
+for theme in ORDER:
+    f = pick_file(theme)
+    if not f:
+        continue
+    # 把每个主题的标题改成二级标题，避免重复一级标题
+    with open(f, "r", encoding="utf-8") as fh:
+        txt = fh.read().strip()
+    # 将首行标题(# ...)替换为 "## {THEME}"
+    lines = txt.splitlines()
+    if lines and lines[0].startswith("# "):
+        lines[0] = f"## {theme.upper()} · Bilingual"
+    txt2 = "\n".join(lines)
+    parts.append(txt2)
+    parts.append("\n---\n")
+
+merged = "\n".join(parts).strip() + "\n"
+out = "output/weekly_digest_ALL_bilingual.md"
+with open(out, "w", encoding="utf-8") as fw:
+    fw.write(merged)
+print(f"Merged -> {out}")
+PY
+
+      - name: Upload merged report
+        uses: actions/upload-artifact@v4
+        with:
+          name: weekly_digest_ALL
+          path: output/weekly_digest_ALL_bilingual.md
+
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
