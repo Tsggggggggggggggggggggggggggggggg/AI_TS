@@ -1,8 +1,8 @@
-https://www.ftchinese.com/rss/feed
-https://www.caixin.com/rss/roll.xml
-https://www.economist.com/latest/rss.xml
-https://www.wsj.com/xml/rss/3_7014.xml
-https://hbr.org/feed
-https://www.forbes.com/business/feed/
-https://techcrunch.com/startups/feed/
-https://www.chinadaily.com.cn/rss/business_rss.xml
+https://www.ifanr.com/feed
+https://sspai.com/feed
+https://www.geekpark.net/rss
+# —— RSSHub：商业/投融资/深度 —— 
+https://rsshub.app/36kr/newsflashes
+https://rsshub.app/36kr/motif/327         # 商业科技
+https://rsshub.app/jiemian/list/tech
+https://rsshub.app/huxiu/channel/3         # 商业
