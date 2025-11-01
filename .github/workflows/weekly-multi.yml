@@ -17,6 +17,7 @@ jobs:
       fail-fast: false
       matrix:
         theme: ${{ fromJSON(github.event.inputs.theme == 'all' && '["ai","business","psych","design"]' || format('["{0}"]', github.event.inputs.theme)) }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -26,29 +27,43 @@ jobs:
         with:
           python-version: '3.11'
 
+      # ===== 调试步骤（新增）=====
+      - name: Debug workspace
+        run: |
+          echo "Python:" && python -V
+          echo "CWD:" && pwd
+          echo "List repo root:" && ls -la
+          echo "Theme=${{ matrix.theme }}"
+          echo "---- requirements.txt ----"
+          cat requirements.txt || true
+
+      # ===== 安装依赖（更稳：无需缓存 + 打印版本）=====
       - name: Install deps
         run: |
-          python -m pip install --upgrade pip
+          python -m pip install --upgrade pip setuptools wheel
           pip install --upgrade --no-cache-dir -r requirements.txt
           echo "---- pip freeze ----"
           pip freeze
 
+      # ===== 执行抓取与生成 =====
       - name: Run script for ${{ matrix.theme }}
         env:
           THEME: ${{ matrix.theme }}
         run: |
           python fetch_and_summarize.py
 
+      # ===== 上传每个主题的报告产物 =====
       - name: Upload artifact (${{ matrix.theme }})
         uses: actions/upload-artifact@v4
         with:
           name: weekly_digest_${{ matrix.theme }}
-          path: output/weekly_digest_${{ matrix.theme }}*.md   # 打包中/英/双语三份（此脚本只产出 *_bilingual.md）
+          path: output/weekly_digest_${{ matrix.theme }}*.md
 
   merge:
     name: Merge all themes to one bilingual report
     runs-on: ubuntu-latest
     needs: build
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -69,10 +84,9 @@ jobs:
 
           os.makedirs("output", exist_ok=True)
 
-          ORDER = ["ai","business","psych","design"]  # 合并顺序
+          ORDER = ["ai","business","psych","design"]
 
           def pick_file(theme):
-              # 本方案仅产出 *_bilingual.md，但保留兜底逻辑
               for suf in ["_bilingual.md","_zh.md","_en.md"]:
                   cand = glob.glob(f"merged_inputs/**/weekly_digest_{theme}{suf}", recursive=True)
                   if cand:
@@ -91,13 +105,13 @@ jobs:
 
           for theme in ORDER:
               f = pick_file(theme)
-              if not f: 
+              if not f:
+                  print(f"[warn] no report found for {theme}")
                   continue
               with open(f, "r", encoding="utf-8") as fh:
                   txt = fh.read().strip()
               lines = txt.splitlines()
               if lines and lines[0].startswith("# "):
-                  # 将各主题的一级标题替换成二级标题
                   lines[0] = f"## {theme.upper()} · Bilingual"
               parts.append("\n".join(lines))
               parts.append("\n---\n")
