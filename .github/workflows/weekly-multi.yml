@@ -3,7 +3,7 @@ name: AI Weekly Digest (Multi-Theme)
 on:
   schedule:
     - cron: '0 9 * * 1'            # 每周一 09:00 UTC 自动运行
-  workflow_dispatch:               # ⬅️ 这个决定能不能“手动运行”
+  workflow_dispatch:               # 手动运行
     inputs:
       theme:
         description: 'Theme to run (ai / business / psych / design / all)'
@@ -29,7 +29,9 @@ jobs:
       - name: Install deps
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install --upgrade --no-cache-dir -r requirements.txt
+          echo "---- pip freeze ----"
+          pip freeze
 
       - name: Run script for ${{ matrix.theme }}
         env:
@@ -41,12 +43,12 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: weekly_digest_${{ matrix.theme }}
-          path: output/weekly_digest_${{ matrix.theme }}*.md   # ⬅️ 打包中/英/双语三份
+          path: output/weekly_digest_${{ matrix.theme }}*.md   # 打包中/英/双语三份（此脚本只产出 *_bilingual.md）
 
   merge:
     name: Merge all themes to one bilingual report
     runs-on: ubuntu-latest
-    needs: build                    # 等四个主题都跑完
+    needs: build
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -55,22 +57,22 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: merged_inputs
-          pattern: weekly_digest_*  # 下载所有主题产物
+          pattern: weekly_digest_*
           merge-multiple: true
 
       - name: Merge to one bilingual report
         shell: bash
         run: |
           python <<'PY'
-          import os, re, glob, datetime
+          import os, glob, datetime
           from datetime import timezone, timedelta
 
           os.makedirs("output", exist_ok=True)
 
-          ORDER = ["ai","business","psych","design"]  # 合并顺序，可调整
+          ORDER = ["ai","business","psych","design"]  # 合并顺序
 
           def pick_file(theme):
-              # 优先双语，其次中文，再次英文
+              # 本方案仅产出 *_bilingual.md，但保留兜底逻辑
               for suf in ["_bilingual.md","_zh.md","_en.md"]:
                   cand = glob.glob(f"merged_inputs/**/weekly_digest_{theme}{suf}", recursive=True)
                   if cand:
@@ -84,16 +86,18 @@ jobs:
           end = datetime.datetime.now(datetime.timezone.utc)
           start = end - datetime.timedelta(days=7)
 
-          parts = [f"# 多主题一周总览 · {fmt(start)} ~ {fmt(end)}\n\n> 含 AI / 商业 / 心理 / 设计 · 每条 1 句摘要 + 1 句洞察（中英双语）\n"]
+          parts = [f"# 多主题一周总览（中英双语） · {fmt(start)} ~ {fmt(end)}\n",
+                   "> 含 AI / 商业 / 心理 / 设计 · 每条：摘要（原文）+ 摘要（中文）+ 洞察（中文）\n"]
 
           for theme in ORDER:
               f = pick_file(theme)
-              if not f:
+              if not f: 
                   continue
               with open(f, "r", encoding="utf-8") as fh:
                   txt = fh.read().strip()
               lines = txt.splitlines()
               if lines and lines[0].startswith("# "):
+                  # 将各主题的一级标题替换成二级标题
                   lines[0] = f"## {theme.upper()} · Bilingual"
               parts.append("\n".join(lines))
               parts.append("\n---\n")
