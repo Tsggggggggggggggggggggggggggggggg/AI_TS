@@ -1,7 +1,5 @@
-https://www.designboom.com/feed/
-https://www.dezeen.com/feed/
-https://www.creativebloq.com/feed
-https://www.itsnicethat.com/feed
-https://abduzeedo.com/rss.xml
-https://www.behance.net/collections.rss
-https://uxdesign.cc/feed
+https://sspai.com/feed                     # 工具/设计工作流
+# —— 设计社区/灵感（多为英文，保留 1~2 个平衡）——
+https://rsshub.app/zhihu/hotlist/graphic-design
+https://rsshub.app/behance/projects
+https://rsshub.app/dribbble/popular
