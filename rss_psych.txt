@@ -1,7 +1,6 @@
-https://psychcentral.com/blog/feed/
-https://www.psychologytoday.com/us/front/feed
-https://www.npr.org/sections/health/rss.xml
-https://greatergood.berkeley.edu/rss/all
-https://www.ted.com/themes/rss
-https://lifehacker.com/rss
-https://theconversation.com/psychology/articles.atom
+# 心理/人文/教育（中文）
+https://rsshub.app/zhihu/hotlist/心理学
+https://rsshub.app/zhihu/people/KnowYourself
+https://rsshub.app/zhihu/topic/19551556    # 心理学话题
+# 媒体/科普
+https://rsshub.app/thepaper/featured       # 澎湃精选（含人文/科普）
